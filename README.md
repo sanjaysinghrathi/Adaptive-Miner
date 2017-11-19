@@ -1,1 +1,1 @@
-# Adaptive-Miner
+# SDC-Miner
