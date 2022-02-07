@@ -595,7 +595,8 @@ object  Apriori {
   } 
  
   def main(args: Array[String]) {
-      val conf = new SparkConf().setAppName("Apriori").set("spark.executor.memory", "6g")
+      val conf = new SparkConf().setAppName("Apriori");
+//.set("spark.executor.memory", "6g")
       conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
 
 //      conf.setMaster("local[*]");
