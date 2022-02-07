@@ -595,16 +595,15 @@ object  Apriori {
   } 
  
   def main(args: Array[String]) {
-    if (args.length < 1) {
-      System.err.println("Usage: NetworkWordCount <master> <hostname> <port>\n" +
-        "In local mode, <master> should be 'local[n]' with n > 1")
-      System.exit(1)
-    }
-    val conf = new SparkConf().setAppName("Apriori").setMaster("spark://n15.cluster.iitmandi.ac.in:7077").set("spark.executor.memory", "6g")
-    conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-    val sc= new SparkContext(args(0), "Apriori",conf)
-    val lines = sc.textFile(args(1))
-    val minsup:Int=args(2).toInt
+      val conf = new SparkConf().setAppName("Apriori").set("spark.executor.memory", "6g")
+      conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+
+//      conf.setMaster("local[*]");
+
+    val sc= new SparkContext(conf)
+    val lines = sc.textFile(args(0))
+    val minsup:Int=args(1).toInt
+
     def h(k:String , v:Int)=if (v>minsup) Some(k) else None
     def h1(k:scala.collection.Set[String] , v:Int)=if (v>minsup) Some(k) else None
     def h2(k:Set[Int] , v:Int)=if (v>minsup) Some(k) else None
@@ -628,7 +627,7 @@ object  Apriori {
     timer.stop
     val elapsedTime1110 = timer.stop.getElapsedTime
     println("elapsed time for step1-----------------------"+elapsedTime1110)
-    
+
     val broadcastVar=sc.broadcast(check9)
     println("step1 complete-------------------------------------------------------------------------------")
     timer.reset
@@ -636,7 +635,7 @@ object  Apriori {
    	val words2=for{ s<-(broadcastVar33.value).map(_.split(" ").toSet);s1=s.toSeq.intersect(broadcastVar.value);s2=(2 to 2).flatMap(s1.combinations).map(_.toSet).toSet}yield s2
    	//val words3=for {s1<-words2;s2=(2 to 2).flatMap(s1.combinations).map(_.toSet).toSet}yield s2
    	val wordCounts1 = words2.flatMap(x=>x.map(x => (x, 1))).reduceByKey(_ + _)
-   	val check2=wordCounts1.flatMap{case(k,v)=>h1(k,v)} 
+   	val check2=wordCounts1.flatMap{case(k,v)=>h1(k,v)}
     println("2pairrsult-------------")
     val check11=check2.collect()
     var check12=check11.toList
@@ -676,7 +675,7 @@ object  Apriori {
             	    	pp1 map{leee=>{
             	    	  if(bloom4.contains(leee.toString)) j=j+1
             	    	}
-            	    	 
+
             	    	}
             	    	if(j==l) pp2=(pp2.+=(pp.toSet))
             	    }
@@ -738,7 +737,7 @@ object  Apriori {
             	    	pp1 map{leee=>{
             	    	  if(bloom1.contains(leee.toString)) j=j+1
             	    	}
-            	    	 
+
             	    	}
             	    	if(j==l) pp2=(pp2.+=(pp.toSet))
             	    }
@@ -749,7 +748,7 @@ object  Apriori {
              pp3=pp2.toSet
              return pp3
     }
-    
+
     var check22g=powerrep22(check12g,lap+1)
     println("size of new powerrep is------------"+check22g.size)
     var check13g=check22g.toSet
@@ -803,7 +802,7 @@ object  Apriori {
             	    	pp1 map{leee=>{
             	    	  if(bloom1.contains(leee.toString)) j=j+1
             	    	}
-            	    	 
+
             	    	}
             	    	if(j==l) pp2=(pp2.+=(pp.toSet))
             	    }
@@ -814,7 +813,7 @@ object  Apriori {
              pp3=pp2.toSet
              return pp3
     	}
-    	
+
     	var check22g=powerrep22(check12g,lap+1)
     	println("size of new powerrep is------------"+check22g.size)
     	check13g=check22g.toSet
@@ -825,7 +824,7 @@ object  Apriori {
     	println("elapsed time for powerset-------------------------------"+elapsedTime8)
         if(check3.count<2) break
     }
-    
+
   }
 }
 
