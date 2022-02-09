@@ -599,10 +599,10 @@ object  Apriori {
 //.set("spark.executor.memory", "6g")
       conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
 
-      conf.setMaster("local[*]");
+//      conf.setMaster("local[*]");
 
     val sc= new SparkContext(conf)
-    val lines = sc.textFile(args(0))
+    val lines = sc.textFile(args(0)).repartition(60);
     val minsup:Int=args(1).toInt
 
     def h(k:String , v:Int)=if (v>minsup) Some(k) else None
