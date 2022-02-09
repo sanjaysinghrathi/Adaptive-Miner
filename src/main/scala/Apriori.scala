@@ -599,7 +599,7 @@ object  Apriori {
 //.set("spark.executor.memory", "6g")
       conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
 
-//      conf.setMaster("local[*]");
+      conf.setMaster("local[*]");
 
     val sc= new SparkContext(conf)
     val lines = sc.textFile(args(0))
@@ -608,11 +608,10 @@ object  Apriori {
     def h(k:String , v:Int)=if (v>minsup) Some(k) else None
     def h1(k:scala.collection.Set[String] , v:Int)=if (v>minsup) Some(k) else None
     def h2(k:Set[Int] , v:Int)=if (v>minsup) Some(k) else None
-    val broadcastVar3=sc.broadcast(lines)
-    val line = (broadcastVar3.value).flatMap(_.split("\n"))
-    val broadcastVar33= sc.broadcast(line)
+    val line = lines.flatMap(_.split("\n"))
+//    val broadcastVar33= sc.broadcast(line)
     val wordss=line.map(_.split(" ").toList.sorted.toSet)
-    val broadcastVar333= sc.broadcast(wordss)
+//    val broadcastVar333= sc.broadcast(wordss)
     val timer = new Stopwatch().start
     val words=line.flatMap(_.split(" "))
     val wordCounts = words.map(x => (x, 1)).reduceByKey(_ + _)
@@ -633,7 +632,7 @@ object  Apriori {
     println("step1 complete-------------------------------------------------------------------------------")
     timer.reset
     timer.start
-   	val words2=for{ s<-(broadcastVar33.value).map(_.split(" ").toSet);s1=s.toSeq.intersect(broadcastVar.value);s2=(2 to 2).flatMap(s1.combinations).map(_.toSet).toSet}yield s2
+   	val words2=for{ s<-(line).map(_.split(" ").toSet);s1=s.toSeq.intersect(broadcastVar.value);s2=(2 to 2).flatMap(s1.combinations).map(_.toSet).toSet}yield s2
    	//val words3=for {s1<-words2;s2=(2 to 2).flatMap(s1.combinations).map(_.toSet).toSet}yield s2
    	val wordCounts1 = words2.flatMap(x=>x.map(x => (x, 1))).reduceByKey(_ + _)
    	val check2=wordCounts1.flatMap{case(k,v)=>h1(k,v)}
@@ -703,7 +702,7 @@ object  Apriori {
     var check12h1=(broadcastVar1.value).map(_.map(_.toInt)).toList
     var hah1=hashtree1.buildHashTree(check12h1, lap)
     val s5=List[Set[Int]]()
-   	val words3s2=for{s1<-(broadcastVar333.value);s3=if(s1.size>=lap) s1.map(_.toInt) else Set(1,2,3,4);s2<- if(s1.size>=lap) hashtree1.findItemsets(hah1, s3, 1) else s5  } yield s2
+   	val words3s2=for{s1<-(wordss);s3=if(s1.size>=lap) s1.map(_.toInt) else Set(1,2,3,4);s2<- if(s1.size>=lap) hashtree1.findItemsets(hah1, s3, 1) else s5  } yield s2
    	val wordCountsg2 = words3s2.map(x => (x, 1)).reduceByKey(_ + _)
     val check3=wordCountsg2.flatMap{case(k,v)=>h2(k,v)}
     println("result for"+lap+"-pairrsult-------------")
@@ -768,7 +767,7 @@ object  Apriori {
     	var check12h1=(broadcastVarg.value).map(_.map(_.toInt)).toList
         var hah1=hashtree1.buildHashTree(check12h1, lap)
         val s5=List[Set[Int]]()
-   	    val words3s2=for{s1<-(broadcastVar333.value);s3=if(s1.size>=lap) s1.map(_.toInt) else Set(1,2,3,4);s2<- if(s1.size>=lap) hashtree1.findItemsets(hah1, s3, 1) else s5  } yield s2
+   	    val words3s2=for{s1<-(wordss);s3=if(s1.size>=lap) s1.map(_.toInt) else Set(1,2,3,4);s2<- if(s1.size>=lap) hashtree1.findItemsets(hah1, s3, 1) else s5  } yield s2
    	    val wordCountsg2 = words3s2.map(x => (x, 1)).reduceByKey(_ + _)
     	val check3=wordCountsg2.flatMap{case(k,v)=>h2(k,v)}
     	println("result for"+lap+"-pairrsult-------------")
@@ -814,7 +813,6 @@ object  Apriori {
              pp3=pp2.toSet
              return pp3
     	}
-
     	var check22g=powerrep22(check12g,lap+1)
     	println("size of new powerrep is------------"+check22g.size)
     	check13g=check22g.toSet
